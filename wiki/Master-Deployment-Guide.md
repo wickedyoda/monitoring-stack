@@ -5,7 +5,7 @@ This guide provides a comprehensive walkthrough for deploying a unified monitori
 ## Architecture Overview
 The stack is built on a central InfluxDB v2 (time-series storage) and Grafana (visualization) hub, with Telegraf agents shipping metrics from individual nodes.
 
-### Hub Components (Docker Host - `docker2`)
+### Hub Components (Docker Host - `<HUB_HOSTNAME>`)
 - **InfluxDB v2**: Central time-series database.
 - **Grafana**: Visualization dashboard.
 - **Prometheus/Alertmanager/Loki**: Optional additional telemetry stack.
@@ -16,7 +16,7 @@ The stack is built on a central InfluxDB v2 (time-series storage) and Grafana (v
 
 ---
 
-## Part 1: Central Monitoring Hub (`docker2`)
+## Part 1: Central Monitoring Hub (`<HUB_HOSTNAME>`)
 
 ### 1. Bootstrap OS
 Ensure the host is updated and Docker is installed:
@@ -34,7 +34,7 @@ mkdir -p /root/docker/monitoring/{grafana,influxdb,telegraf,loki,prometheus,aler
 Deploy the core containers using the provided Docker Compose templates. After spinning up InfluxDB, capture the **Setup Token** from the logs; you will need this for all clients.
 
 ### 3. Grafana Configuration
-Configure Grafana with an InfluxDB datasource pointed to `http://<hub-ip>:8086`. Disable anonymous auth and enforce internal admin control.
+Configure Grafana with an InfluxDB datasource pointed to `http://<HUB_IP_OR_HOSTNAME>:8086`. Disable anonymous auth and enforce internal admin control.
 
 ---
 
@@ -81,9 +81,9 @@ Clone base dashboards for different device types (Host, Router, Service) and use
 ### 2. Verification
 Test metrics flow using:
 ```bash
-curl -G 'http://<hub-ip>:8086/api/v2/query' \
-  -H 'Authorization: Token <your-token>' \
-  --data-raw 'from(bucket:"telegraf") |> range(start: -5m) |> filter(fn:(r)=>r._measurement=="cpu")'
+curl -G 'http://<HUB_IP_OR_HOSTNAME>:8086/api/v2/query' \
+  -H 'Authorization: Token <YOUR_INFLUX_TOKEN>' \
+  --data-raw 'from(bucket:"<YOUR_BUCKET_NAME>") |> range(start: -5m) |> filter(fn:(r)=>r._measurement=="cpu")'
 ```
 
 ---
