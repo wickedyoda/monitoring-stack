@@ -1,3 +1,7 @@
+---
+title: "Bootstrap-Script"
+---
+
 1|# Engineering Specification: Bootstrap Script (`bootstrap.sh`)
 2|
 3|The `bootstrap.sh` script is the foundational entry point for the `monitoring-stack` deployment. It is engineered for high-availability environments and heterogeneous host fleets, prioritizing idempotency and fail-fast behavior.

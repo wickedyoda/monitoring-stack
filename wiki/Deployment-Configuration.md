@@ -1,3 +1,7 @@
+---
+title: "Deployment-Configuration"
+---
+
 1|# Engineering Specification: Deployment Configuration
 2|
 3|The monitoring stack architecture relies on a declarative Docker Compose approach to ensure service discovery, isolation, and lifecycle management.

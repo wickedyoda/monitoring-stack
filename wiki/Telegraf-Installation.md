@@ -1,3 +1,7 @@
+---
+title: "Telegraf-Installation"
+---
+
 1|# Engineering Specification: Telegraf Installation
 2|
 3|Telegraf serves as the unified data collector. Its efficiency lies in its plugin-based architecture and robust integration with InfluxDB v2.
