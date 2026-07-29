@@ -1,0 +1,83 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+rule_files:
+  - "/etc/prometheus/rules/*.yml"
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: "node_docker1"
+    static_configs:
+      - targets: ["docker1.tail99133.ts.net:9100"]
+
+  - job_name: "node_glutun"
+    static_configs:
+      - targets: ["glutun.tail99133.ts.net:9100"]
+
+  - job_name: "node_docker2"
+    static_configs:
+      - targets: ["172.17.0.1:9100"]
+
+  - job_name: "node_serv1"
+    static_configs:
+      - targets: ["serv1.tail99133.ts.net:9100"]
+
+  - job_name: "node_serv2"
+    static_configs:
+      - targets: ["serv2.tail99133.ts.net:9100"]
+
+  - job_name: "node_rasp1"
+    static_configs:
+      - targets: ["rasp1.tail99133.ts.net:9100"]
+
+  - job_name: "node_OC"
+    static_configs:
+      - targets: ["OC.tail99133.ts.net:9100"]
+
+  - job_name: "blackbox"
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://docker1.tail99133.ts.net:80
+          - http://docker2.tail99133.ts.net:3000
+          - http://docker2.tail99133.ts.net:9090
+          - http://docker2.tail99133.ts.net:8086
+          - http://docker2.tail99133.ts.net:3306
+          - http://docker2.tail99133.ts.net:5000
+          - http://docker2.tail99133.ts.net:8000
+          - http://docker2.tail99133.ts.net:9093
+          - http://docker2.tail99133.ts.net:3100
+          - http://glutun.tail99133.ts.net:80
+          - http://glutun.tail99133.ts.net:443
+          - http://serv2.tail99133.ts.net:80
+          - http://serv2.tail99133.ts.net:5000
+          - http://OC.tail99133.ts.net:80
+          - http://OC.tail99133.ts.net:443
+          - http://serv1.tail99133.ts.net:80
+          - http://serv1.tail99133.ts.net:443
+          - http://rasp1.tail99133.ts.net:80
+          - http://rasp1.tail99133.ts.net:443
+          - http://travers-mac-mini.tail99133.ts.net:8096
+          - http://travers-mac-mini.tail99133.ts.net:8288
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox_exporter:9115
+
+  - job_name: "mysql"
+    static_configs:
+      - targets: ["mysql_exporter:9104"]

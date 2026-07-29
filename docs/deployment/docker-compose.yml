@@ -1,0 +1,100 @@
+networks:
+  monitoring:
+    external: true
+
+services:
+  node_exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: node_exporter
+    pid: host
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - /proc:/hostfs/proc:ro
+      - /sys:/hostfs/sys:ro
+      - /:/hostfs:ro
+    command:
+      - "--path.procfs=/hostfs/proc"
+      - "--path.sysfs=/hostfs/sys"
+      - "--path.rootfs=/hostfs"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|run|boot|snap|host)($$|/)"
+
+  blackbox_exporter:
+    image: prom/blackbox-exporter:v0.25.0
+    container_name: blackbox_exporter
+    restart: unless-stopped
+    ports:
+      - "9115:9115"
+    volumes:
+      - /root/docker/monitoring/blackbox_exporter/blackbox.yml:/config/blackbox.yml:ro
+    networks:
+      - monitoring
+    command:
+      - "--config.file=/config/blackbox.yml"
+
+  mysql_exporter:
+    image: prom/mysqld-exporter:v0.15.0
+    container_name: mysql_exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "root:a6e3se2aD@tcp(BaseSQLServer:3306)/"
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - /root/docker/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - monitoring
+    command:
+      - "--storage.tsdb.path=/prometheus"
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - /root/docker/monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    networks:
+      - monitoring
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+
+  loki:
+    image: grafana/loki:3.2.0
+    container_name: loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - /root/docker/monitoring/loki/loki.yml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    networks:
+      - monitoring
+    command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:3.2.0
+    container_name: promtail
+    restart: unless-stopped
+    volumes:
+      - /root/docker/monitoring/promtail/promtail.yml:/etc/promtail/config.yml:ro
+      - /var/log:/var/log:ro
+      - /root/docker/monitoring/promtail/positions:/positions
+    networks:
+      - monitoring
+    command: -config.file=/etc/promtail/config.yml
+
+volumes:
+  prometheus-data:
+  loki-data:
