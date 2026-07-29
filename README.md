@@ -1,21 +1,21 @@
 # Monitoring Stack
 
-A comprehensive, script-driven monitoring infrastructure.
+A comprehensive, script-driven monitoring infrastructure for your homelab.
+
+## Disclaimer
+This repository is provided "as is" without warranty of any kind. The user assumes all responsibility for any use, deployment, or configuration of these scripts. By using this software, you agree to the [Disclaimer and Limitation of Liability](https://www.wickedyoda.com/privacy-policy-terms-of-use-disclaimer-and-limitation-of-liability/).
 
 ## Overview
-This repository provides a fully automated, reproducible monitoring stack including:
+Automated, reproducible monitoring including:
 - **Central Host:** Dockerized stack (Prometheus, Grafana, InfluxDB, Loki).
-- **Fleet Nodes:** Telegraf agents installed on Linux (Debian) and macOS.
-- **Router Fleet:** Monitoring for generic router devices (including custom thermal metrics).
+- **Fleet Nodes:** Telegraf agents for Linux and macOS.
+- **Router Fleet:** Monitoring for OpenWrt devices.
+
+## Getting Started
+See the [Wiki](wiki/Home.md) for full walkthroughs.
 
 ## Workflow
-1.  **Bootstrap:** Run `./bootstrap.sh` on a new host to install Docker.
+1.  **Bootstrap:** Run `./bootstrap.sh` on a new host.
 2.  **Deploy:** Use `docs/deployment/` to stand up the monitoring stack.
 3.  **Clients:** Use `docs/scripts/install-telegraf.sh` to add nodes.
 4.  **Provision:** Use `docs/scripts/provision-dashboard.sh` to import Grafana dashboards.
-
-## Documentation
-Full detailed walkthroughs and step-by-step instructions are available in the [Wiki](wiki/Home.md).
-
-## Verification
-CI/CD verification (linting, syntax checks, security scanning) runs on every push to `master`.
