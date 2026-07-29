@@ -1,29 +1,42 @@
-# Deployment Configuration (Manual)
+# Deep Dive: Deployment Configuration
 
-This document covers the structure and deployment of the monitoring stack services (Prometheus, Grafana, Loki) hosted on `docker2`.
+The monitoring stack architecture relies on a declarative Docker Compose approach to ensure service discovery, isolation, and lifecycle management.
 
-## Repository Structure
-- `docs/deployment/`: Contains the `docker-compose.yml` defining the stack.
-- `docs/configs/`: Contains configuration files for services (e.g., `prometheus.yml`, `grafana.ini`).
+## Network Topology
 
-## Operational Steps
-1. **Prepare Environment**: Ensure `docker-compose` plugin is installed on the target host.
-2. **Configure Secrets**: Create a `.env` file in the deployment directory to store sensitive values (e.g., passwords, API keys).
-3. **Execution**:
-   ```bash
-   cd docs/deployment/
-   docker compose up -d
-   ```
+```mermaid
+graph LR
+    subgraph Host[Host: docker2]
+        direction TB
+        Bridge[Docker Bridge: monitoring]
+        Prometheus[Prometheus]
+        Grafana[Grafana]
+        Loki[Loki]
+        
+        Prometheus <--> Bridge
+        Grafana <--> Bridge
+        Loki <--> Bridge
+    end
+    Bridge -- Port 3000 --> External[Public/VPN Access]
+    Bridge -- Port 9090 --> External
+```
 
-## Requirements
-- **Hardware**: Minimum 2GB RAM for a basic Prometheus/Grafana/Loki stack.
-- **Docker**: Latest stable Docker CE with `docker-compose-plugin`.
-- **Network**: The host must expose port 3000 (Grafana) and 9090 (Prometheus) if remote access is required.
+### 1. Service Isolation
+Services are hosted on a dedicated `monitoring` bridge network. This enforces:
+- **DNS Service Discovery**: Services interact using container names (e.g., `prometheus:9090`) rather than IP addresses.
+- **Traffic Shaping**: The bridge prevents external interference while allowing controlled egress for data scraping.
 
-## Failure Modes & Debugging
-- **"Container Crash Loop"**: Check logs with `docker compose logs <service_name>`. Frequently caused by missing configuration files or malformed YAML.
-- **"Permission Denied" (Mount)**: If the stack mounts local host volumes (like `/var/lib/prometheus`), ensure the container user (often 65534) has permissions to write to these directories.
-- **"Port Conflict"**: If ports are blocked, check `ss -tulpn | grep :<port>`.
+### 2. Configuration Breakdown
+- **`prometheus.yml`**: Uses `file_sd_configs` for service discovery, reducing the need for manual scraper updates.
+- **`grafana.ini`**: Configured with `GF_SECURITY_ADMIN_PASSWORD` (loaded via environment) to prevent hardcoding.
+- **Volumetric Mounts**: Data persistence is handled through named volumes: `prometheus_data`, `grafana_data`, and `loki_data`.
 
-## The "Why": Choice of docker-compose
-`docker compose` provides a declarative state for the entire monitoring environment. Using it allows us to handle inter-service networking (via a user-defined bridge) and dependency mapping (e.g., Grafana waiting for Prometheus to be healthy) out-of-the-box.
+## Exhaustive Configuration Checklist
+| Service | Persistent Path | Port | Env Variable Prefix |
+| :--- | :--- | :--- | :--- |
+| Prometheus | `/var/lib/prometheus` | 9090 | `PROM_` |
+| Grafana | `/var/lib/grafana` | 3000 | `GF_` |
+| Loki | `/data/loki` | 3100 | `LOKI_` |
+
+## Deployment Strategy
+The stack is deployed via `docker compose up -d --build`. This forces a check of the image manifests and ensures local configurations are properly synced with container states.
