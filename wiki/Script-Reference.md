@@ -32,12 +32,12 @@ title: "Script-Reference"
 28|
 29|## Under the Hood: Common Failures & Error Handling
 30|
-31|| Script | Exit Code | Common Failure | Recovery |
-32|| :--- | :--- | :--- | :--- |
-33|| All | 1 | Permission Denied | Re-run with root (`sudo`). |
-34|| `deploy-stack.sh` | 137 | Out of Memory (OOM) | Reduce container memory limits in `docker-compose.yml`. |
-35|| `provision-dashboard.sh` | 401 | Invalid Auth Token | Check `GRAFANA_API_KEY` validity. |
-36|| `bootstrap.sh` | 127 | Missing binary | Install `jq` or `git` on target. |
+ Script | Exit Code | Common Failure | Recovery |
+ :--- | :--- | :--- | :--- |
+ All | 1 | Permission Denied | Re-run with root (`sudo`). |
+ `deploy-stack.sh` | 137 | Out of Memory (OOM) | Reduce container memory limits in `docker-compose.yml`. |
+ `provision-dashboard.sh` | 401 | Invalid Auth Token | Check `GRAFANA_API_KEY` validity. |
+ `bootstrap.sh` | 127 | Missing binary | Install `jq` or `git` on target. |
 37|
 38|## Utilities
 39|- **`health-check.sh`**: Probes target services (9090, 3000, 3100) and returns exit code 0 if all are responsive.
