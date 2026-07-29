@@ -1,12 +1,12 @@
 # Monitoring Stack
 
-A comprehensive, script-driven monitoring infrastructure for your homelab. 
+A comprehensive, script-driven monitoring infrastructure.
 
 ## Overview
 This repository provides a fully automated, reproducible monitoring stack including:
 - **Central Host:** Dockerized stack (Prometheus, Grafana, InfluxDB, Loki).
-- **Fleet Nodes:** Telegraf agents installed on Linux (Debian/Ubuntu) and macOS.
-- **Router Fleet:** Monitoring for OpenWrt devices (including custom thermal metrics).
+- **Fleet Nodes:** Telegraf agents installed on Linux (Debian) and macOS.
+- **Router Fleet:** Monitoring for generic router devices (including custom thermal metrics).
 
 ## Workflow
 1.  **Bootstrap:** Run `./bootstrap.sh` on a new host to install Docker.

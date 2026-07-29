@@ -5,7 +5,8 @@ set -eu
 # Purpose: Orchestrates full monitoring stack deployment.
 
 # Define directories
-REPO_ROOT="/root/gh/monitoring-stack"
+# Dynamically determine the repo root based on the script location
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_DIR="$REPO_ROOT/docs/scripts"
 
 # Make scripts executable
@@ -13,10 +14,36 @@ chmod +x "$SCRIPTS_DIR"/*.sh
 
 echo "Starting full monitoring stack bootstrap..."
 
-# 1. Install Docker
-"$SCRIPTS_DIR/install-docker.sh"
+# Detect OS
+if [ -f /etc/debian_version ]; then
+  OS="debian"
+elif [ -f /etc/openwrt_release ]; then
+  OS="openwrt"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  OS="macos"
+else
+  echo "Unsupported OS"
+  exit 1
+fi
 
-# 2. Deploy Docker Compose Stack
+echo "Detected OS: $OS"
+
+# 1. Install Dependencies/Services based on OS
+case $OS in
+  debian)
+    "$SCRIPTS_DIR/install-docker.sh"
+    ;;
+  openwrt)
+    # OpenWrt specific bootstrap
+    echo "Performing OpenWrt specific bootstrap..."
+    ;;
+  macos)
+    # macOS specific bootstrap
+    echo "Performing macOS specific bootstrap..."
+    ;;
+esac
+
+# 2. Deploy Docker Compose Stack (Generic)
 "$SCRIPTS_DIR/deploy-stack.sh"
 
 # 3. Provision Grafana
