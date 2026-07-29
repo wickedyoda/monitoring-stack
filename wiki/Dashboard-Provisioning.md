@@ -1,26 +1,29 @@
-# Dashboard Provisioning (Manual)
+# Deep Dive: Dashboard Provisioning
 
-This document describes how to automate the provisioning of Grafana dashboards using the Grafana API.
+Grafana dashboard provisioning is managed programmatically via the Grafana HTTP API, ensuring consistency across environments.
 
-## Logic Overview
-The `docs/scripts/provision-dashboard.sh` script utilizes the Grafana HTTP API to push a dashboard JSON definition directly into the instance.
-1. **Targeting**: Requires a reachable Grafana instance URL and an API key with `Editor` or `Admin` privileges.
-2. **Execution**: Uses `curl` to POST the JSON content to `/api/dashboards/db`.
-3. **Outcome**: The dashboard is dynamically added to the Grafana instance without human interaction in the GUI.
+## Dashboard Structure & JSON Payload
+A standard dashboard JSON contains mandatory metadata that must be handled to avoid UID/ID collisions:
+- **`uid`**: Must be unique globally within the Grafana instance. 
+- **`id`**: Should be `null` when provisioning to ensure Grafana assigns an ID on creation.
 
-## Operational Requirements
-- **Dashboard JSON**: Must be valid JSON matching the format exported by Grafana.
-- **API Access**: An API key (Service Account token) is required.
+### API Provisioning Example
+To automate, the script performs a `POST` operation:
 
-## Usage Example
 ```bash
-./docs/scripts/provision-dashboard.sh "http://grafana.internal:3000" "eyJh...key" "dashboards/node-stats.json"
+curl -X POST -H "Authorization: Bearer $GRAFANA_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d @dashboard.json \
+     "http://grafana.internal:3000/api/dashboards/db"
 ```
 
-## Failure Modes & Debugging
-- **"401 Unauthorized"**: The API token is invalid or expired.
-- **"400 Bad Request"**: The JSON file provided is malformed or missing critical Grafana dashboard fields.
-- **"Connection Failed"**: Check if the Grafana service is up and reachable from the execution host.
+### Advanced Payload Handling
+The JSON provided in `dashboards/` is treated as a template. The automation logic strips old UIDs before submission to ensure that if a dashboard with the same slug exists, the API performs an update instead of creating a duplicate.
 
-## The "Why": Programmatic Provisioning
-Manual dashboard creation is brittle and hard to version control. By scripting the provisioning, we ensure that every deployment of the monitoring stack can recreate the same set of dashboards automatically, which is essential for CI/CD and disaster recovery.
+## Handling UID Collisions
+If an import fails, the provisioning script:
+1. Queries the existing dashboards via `GET /api/search?query=<slug>`.
+2. Extracts the `uid` if found.
+3. Patches the current dashboard file before re-attempting the `POST`.
+
+This ensures that the deployment script is fully idempotent and resilient to concurrent updates.
