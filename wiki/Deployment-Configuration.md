@@ -49,11 +49,11 @@ title: "Deployment-Configuration"
 45|- **Loki**: CPU `1.0`, Memory `1GB`.
 46|
 47|## Exhaustive Configuration Checklist
-48|| Service | Persistent Path | Port | Env Variable Prefix |
-49|| :--- | :--- | :--- | :--- |
-50|| Prometheus | `/var/lib/prometheus` | 9090 | `PROM_` |
-51|| Grafana | `/var/lib/grafana` | 3000 | `GF_` |
-52|| Loki | `/data/loki` | 3100 | `LOKI_` |
+ Service | Persistent Path | Port | Env Variable Prefix |
+ :--- | :--- | :--- | :--- |
+ Prometheus | `/var/lib/prometheus` | 9090 | `PROM_` |
+ Grafana | `/var/lib/grafana` | 3000 | `GF_` |
+ Loki | `/data/loki` | 3100 | `LOKI_` |
 53|
 54|## Deployment Strategy
 55|The stack is deployed via `docker compose up -d --build`. This forces a check of the image manifests and ensures local configurations are properly synced with container states.
