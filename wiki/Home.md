@@ -1,3 +1,7 @@
+---
+title: "Home"
+---
+
 # Monitoring Stack Documentation
 
 Welcome to the monitoring stack documentation. This repository contains the essential scripts and deployment configurations to build and maintain the monitoring infrastructure.

@@ -1,3 +1,7 @@
+---
+title: "Script-Reference"
+---
+
 1|# Engineering Specification: Script Reference
 2|
 3|Comprehensive reference of the automated monitoring stack scripts.

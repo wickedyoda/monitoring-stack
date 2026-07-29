@@ -1,3 +1,7 @@
+---
+title: "Master-Deployment-Guide"
+---
+
 # Master Deployment Guide: End-to-End Monitoring Stack
 
 This guide provides a comprehensive walkthrough for deploying a unified monitoring stack across a mixed infrastructure fleet consisting of a core Docker host, Linux servers, and OpenWrt routers.

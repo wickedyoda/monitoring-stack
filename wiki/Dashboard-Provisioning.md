@@ -1,3 +1,7 @@
+---
+title: "Dashboard-Provisioning"
+---
+
 1|# Engineering Specification: Dashboard Provisioning
 2|
 3|Grafana dashboard provisioning is managed programmatically via the Grafana HTTP API, ensuring consistency across environments.
